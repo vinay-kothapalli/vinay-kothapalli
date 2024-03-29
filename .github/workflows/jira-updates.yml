@@ -37,7 +37,7 @@ jobs:
 
     # Add comment to Jira issues
     - name: Add comment to Jira issues
-      uses: atlassian/gajira-add-comment@v3
+      uses: atlassian/gajira-comment@v3
       with:
         issue: ${{ steps.find-jira-issues.outputs.issue }}
         comment: 'This issue was updated by GitHub Actions'
