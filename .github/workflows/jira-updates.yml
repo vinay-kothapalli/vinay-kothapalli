@@ -1,0 +1,43 @@
+name: 'Jira Updates'
+
+# Run this workflow on every commit to all branches
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  jira-updates:
+    name: Jira Updates
+    runs-on: ubuntu-latest
+
+    steps:
+    # Authenticate with Jira
+    - name: Authenticate with Jira
+      uses: atlassian/gajira-login@v3
+      with:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    
+    # Find Jira issues in commit messages
+    - name: Find Jira issues in commit messages
+      id: find-jira-issues
+      uses: atlassian/gajira-find-issue-key@v3
+      with:
+        string: ${{ github.event.ref }}
+        from: 'branch'
+    
+    # Update Jira issues
+    - name: Update Jira issues
+      uses: atlassian/gajira-transition@v3
+      with:
+        issue: ${{ steps.find-jira-issues.outputs.issue }}
+        transition: 'In Progress'
+
+    # Add comment to Jira issues
+    - name: Add comment to Jira issues
+      uses: atlassian/gajira-add-comment@v3
+      with:
+        issue: ${{ steps.find-jira-issues.outputs.issue }}
+        comment: 'This issue was updated by GitHub Actions'
